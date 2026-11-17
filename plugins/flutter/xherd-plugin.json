@@ -1,12 +1,12 @@
 {
   "name": "flutter",
   "kind": "toolchain",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "label": "Flutter (fvm)",
-  "description": "Flutter SDK versions through fvm, from a .flutter-version file.",
+  "description": "Flutter SDK versions through fvm, from a .flutter-version file. Can install fvm itself.",
   "data": {
     "toolchain": {
-      "passEnv": ["FVM_CACHE_PATH", "FVM_HOME"],
+      "passEnv": ["FVM_CACHE_PATH", "FVM_HOME", "FVM_INSTALL_DIR"],
       "tools": [
         {
           "name": "flutter",
@@ -20,7 +20,7 @@
           ],
           "install": [
             "sh", "-c",
-            "fvm install \"$1\" </dev/null",
+            "PATH=\"${FVM_INSTALL_DIR:-$HOME/fvm}/bin:$PATH\"; fvm install \"$1\" </dev/null",
             "_", "{v}"
           ],
           "list": [
@@ -40,12 +40,16 @@
       "name": "fvm",
       "check": [
         "sh", "-c",
-        "if command -v fvm >/dev/null 2>&1; then exit 0; fi; echo \"fvm not found (install it: https://fvm.app/)\" >&2; exit 1"
+        "if command -v fvm >/dev/null 2>&1 || test -x \"${FVM_INSTALL_DIR:-$HOME/fvm}/bin/fvm\"; then exit 0; fi; echo \"fvm not found (install it: https://fvm.app/)\" >&2; exit 1"
       ],
       "optional": true,
+      "install": [
+        "sh", "-c",
+        "curl -fsSL https://fvm.app/install.sh | bash -s -- 4.3.2"
+      ],
       "instructions": {
         "macos": "brew tap leoafarias/fvm && brew install fvm",
-        "any": "curl -fsSL https://fvm.app/install.sh | bash   # see https://fvm.app/"
+        "any": "curl -fsSL https://fvm.app/install.sh | bash   # installs to ~/fvm/bin; see https://fvm.app/"
       }
     }
   ]
